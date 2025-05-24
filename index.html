@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Connect - Find & Host Kid Events</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #dbeafe 0%, #faf5ff 100%);
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #9333ea 100%);
+        }
+        .gradient-btn:hover {
+            background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        }
+        .hidden { display: none !important; }
+        .show { display: block !important; }
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-2 cursor-pointer" onclick="showPage('home')">
+                    <div class="w-8 h-8 gradient-btn rounded-lg flex items-center justify-center">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-xl font-bold text-gray-900">Kids Connect</h1>
+                </div>
+                <div id="auth-buttons" class="flex items-center space-x-4">
+                    <button onclick="showPage('signin')" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                        Sign In
+                    </button>
+                    <button onclick="showPage('signup')" class="px-4 py-2 gradient-btn text-white rounded-md hover:opacity-90">
+                        Sign Up
+                    </button>
+                    <button onclick="showPage('create-event')" class="px-4 py-2 gradient-btn text-white rounded-md hover:opacity-90 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Host Event
+                    </button>
+                </div>
+                <div id="user-menu" class="hidden flex items-center space-x-4">
+                    <button onclick="showPage('create-event')" class="px-4 py-2 gradient-btn text-white rounded-md hover:opacity-90 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                        </svg>
+                        Host Event
+                    </button>
+                    <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center cursor-pointer" onclick="logout()">
+                        <span class="text-sm font-medium text-gray-700" id="user-initials">JD</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Home Page -->
+        <div id="home-page" class="page fade-in">
+            <!-- Hero Section -->
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Discover Amazing Events for Your Kids</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Connect with other parents and find fun, educational, and engaging activities for children in your area.
+                </p>
+            </div>
+
+            <!-- Search and Filters -->
+            <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="search-input"
+                            placeholder="Search events..." 
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            oninput="filterEvents()"
+                        >
+                    </div>
+                    <select id="category-filter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                        <option value="all">All Categories</option>
+                        <option value="Arts & Crafts">Arts & Crafts</option>
+                        <option value="Sports">Sports</option>
+                        <option value="Education">Education</option>
+                        <option value="Social">Social</option>
+                    </select>
+                    <select id="age-filter" class="px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" onchange="filterEvents()">
+                        <option value="all">All Ages</option>
+                        <option value="2-5 years">2-5 years</option>
+                        <option value="5-10 years">5-10 years</option>
+                        <option value="6-12 years">6-12 years</option>
+                        <option value="8-14 years">8-14 years</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Events Grid -->
+            <div id="events-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Events will be populated by JavaScript -->
+            </div>
+
+            <!-- No Events Message -->
+            <div id="no-events" class="hidden text-center py-12">
+                <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                <p class="text-gray-600">Try adjusting your search criteria or create a new event.</p>
+            </div>
+        </div>
+
+        <!-- Sign In Page -->
+        <div id="signin-page" class="page hidden">
+            <div class="max-w-md mx-auto">
+                <!-- Logo -->
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 gradient-btn rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Welcome Back</h1>
+                    <p class="text-gray-600 mt-2">Sign in to Kids Connect</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-2xl font-bold text-center mb-6">Sign In</h2>
+                    
+                    <form id="signin-form" onsubmit="handleSignIn(event)">
+                        <div id="signin-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p class="text-red-800 text-sm"></p>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="signin-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                                </svg>
+                                <input 
+                                    type="email" 
+                                    id="signin-email" 
+                                    required 
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter your email"
+                                >
+                            </div>
+                        </div>
+
+                        <div class="mb-6">
+                            <label for="signin-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <input 
+                                    type="password" 
+                                    id="signin-password" 
+                                    required 
+                                    class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter your password"
+                                >
+                                <button type="button" onclick="togglePassword('signin-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-6">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                            </label>
+                            <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                        </div>
+
+                        <button type="submit" class="w-full gradient-btn text-white py-2 px-4 rounded-md hover:opacity-90 transition-opacity">
+                            Sign In
+                        </button>
+                    </form>
+
+                    <div class="mt-6 text-center">
+                        <p class="text-sm text-gray-600">
+                            Don't have an account? 
+                            <button onclick="showPage('signup')" class="text-blue-600 hover:underline font-medium">Sign up</button>
+                        </p>
+                    </div>
+
+                    <!-- Demo credentials -->
+                    <div class="mt-4 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-xs text-blue-800 font-medium mb-1">Demo Credentials:</p>
+                        <p class="text-xs text-blue-700">Email: demo@example.com</p>
+                        <p class="text-xs text-blue-700">Password: password</p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <button onclick="showPage('home')" class="text-sm text-gray-600 hover:underline">
+                        ← Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sign Up Page -->
+        <div id="signup-page" class="page hidden">
+            <div class="max-w-md mx-auto">
+                <!-- Logo -->
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 gradient-btn rounded-2xl flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold text-gray-900">Join Kids Connect</h1>
+                    <p class="text-gray-600 mt-2">Create your account to get started</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h2 class="text-2xl font-bold text-center mb-6">Sign Up</h2>
+                    
+                    <form id="signup-form" onsubmit="handleSignUp(event)">
+                        <div id="signup-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p class="text-red-800 text-sm"></p>
+                        </div>
+
+                        <!-- Name Fields -->
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label for="signup-firstname" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                                <input 
+                                    type="text" 
+                                    id="signup-firstname" 
+                                    required 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="First name"
+                                >
+                            </div>
+                            <div>
+                                <label for="signup-lastname" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                                <input 
+                                    type="text" 
+                                    id="signup-lastname" 
+                                    required 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Last name"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-4">
+                            <label for="signup-email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+                                </svg>
+                                <input 
+                                    type="email" 
+                                    id="signup-email" 
+                                    required 
+                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Enter your email"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Phone -->
+                        <div class="mb-4">
+                            <label for="signup-phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                            <input 
+                                type="tel" 
+                                id="signup-phone" 
+                                required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="(555) 123-4567"
+                            >
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-4">
+                            <label for="signup-location" class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                            <input 
+                                type="text" 
+                                id="signup-location" 
+                                required 
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                placeholder="City, State"
+                            >
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mb-4">
+                            <label for="signup-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <input 
+                                    type="password" 
+                                    id="signup-password" 
+                                    required 
+                                    class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Create a password"
+                                >
+                                <button type="button" onclick="togglePassword('signup-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Confirm Password -->
+                        <div class="mb-4">
+                            <label for="signup-confirm-password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                            <div class="relative">
+                                <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                </svg>
+                                <input 
+                                    type="password" 
+                                    id="signup-confirm-password" 
+                                    required 
+                                    class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Confirm your password"
+                                >
+                                <button type="button" onclick="togglePassword('signup-confirm-password')" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Checkboxes -->
+                        <div class="mb-6 space-y-3">
+                            <label class="flex items-start space-x-2">
+                                <input type="checkbox" id="agree-terms" required class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-600">
+                                    I agree to the <a href="#" class="text-blue-600 hover:underline">Terms of Service</a> and 
+                                    <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+                                </span>
+                            </label>
+                            <label class="flex items-start space-x-2">
+                                <input type="checkbox" id="subscribe-newsletter" class="mt-1 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="text-sm text-gray-600">
+                                    Subscribe to our newsletter for event updates and parenting tips
+                                </span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="w-full gradient-btn text-white py-2 px-4 rounded-md hover:opacity-90 transition-opacity">
+                            Create Account
+                        </button>
+                    </form>
+
+                    <div class="mt-6 text-center">
+                        <p class="text-sm text-gray-600">
+                            Already have an account? 
+                            <button onclick="showPage('signin')" class="text-blue-600 hover:underline font-medium">Sign in</button>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="text-center mt-6">
+                    <button onclick="showPage('home')" class="text-sm text-gray-600 hover:underline">
+                        ← Back to Home
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Event Page -->
+        <div id="create-event-page" class="page hidden">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-bold text-gray-900 mb-4">Create a New Event</h2>
+                    <p class="text-lg text-gray-600">Host an amazing experience for kids in your community</p>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-xl font-semibold mb-6">Event Details</h3>
+                    
+                    <form id="create-event-form" onsubmit="handleCreateEvent(event)">
+                        <div id="create-event-error" class="hidden mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
+                            <p class="text-red-800 text-sm"></p>
+                        </div>
+
+                        <!-- Basic Information -->
+                        <div class="space-y-4 mb-6">
+                            <div>
+                                <label for="event-title" class="block text-sm font-medium text-gray-700 mb-2">Event Title *</label>
+                                <input 
+                                    type="text" 
+                                    id="event-title" 
+                                    required 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="e.g., Kids Art Workshop"
+                                >
+                            </div>
+
+                            <div>
+                                <label for="event-description" class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                                <textarea 
+                                    id="event-description" 
+                                    required 
+                                    rows="4"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="Describe what kids will do, what they'll learn, and what makes this event special..."
+                                ></textarea>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="event-category" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                                    <select id="event-category" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select category</option>
+                                        <option value="Arts & Crafts">Arts & Crafts</option>
+                                        <option value="Sports">Sports</option>
+                                        <option value="Education">Education</option>
+                                        <option value="Social">Social</option>
+                                        <option value="Music">Music</option>
+                                        <option value="Outdoor">Outdoor</option>
+                                        <option value="Technology">Technology</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label for="event-age-group" class="block text-sm font-medium text-gray-700 mb-2">Age Group *</label>
+                                    <select id="event-age-group" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                        <option value="">Select age range</option>
+                                        <option value="2-5 years">2-5 years</option>
+                                        <option value="5-8 years">5-8 years</option>
+                                        <option value="8-12 years">8-12 years</option>
+                                        <option value="12-16 years">12-16 years</option>
+                                        <option value="All ages">All ages</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Date and Time -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                When
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="event-date" class="block text-sm font-medium text-gray-700 mb-2">Date *</label>
+                                    <input 
+                                        type="date" 
+                                        id="event-date" 
+                                        required 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="event-time" class="block text-sm font-medium text-gray-700 mb-2">Time *</label>
+                                    <input 
+                                        type="time" 
+                                        id="event-time" 
+                                        required 
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Where
+                            </h4>
+                            <div>
+                                <label for="event-location" class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                                <input 
+                                    type="text" 
+                                    id="event-location" 
+                                    required 
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    placeholder="e.g., Community Center, 123 Main St"
+                                >
+                            </div>
+                        </div>
+
+                        <!-- Capacity and Pricing -->
+                        <div class="mb-6">
+                            <h4 class="text-lg font-semibold mb-4 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                Capacity & Pricing
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="event-max-attendees" class="block text-sm font-medium text-gray-700 mb-2">Maximum Attendees *</label>
+                                    <input 
+                                        type="number" 
+                                        id="event-max-attendees" 
+                                        required 
+                                        min="1"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="e.g., 15"
+                                    >
+                                </div>
+                                <div>
+                                    <label for="event-price" class="block text-sm font-medium text-gray-700 mb-2">Price per Child</label>
+                                    <input 
+                                        type="number" 
+                                        id="event-price" 
+                                        min="0"
+                                        step="0.01"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        placeholder="0 for free events"
+                                    >
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="flex justify-end space-x-4 pt-6">
+                            <button type="button" onclick="showPage('home')" class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50">
+                                Cancel
+                            </button>
+                            <button type="submit" class="px-6 py-2 gradient-btn text-white rounded-md hover:opacity-90">
+                                Create Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Mock data for events
+        let events = [
+            {
+                id: 1,
+                title: "Kids Art Workshop",
+                description: "Creative painting and drawing session for children ages 5-10",
+                host: "Sarah Johnson",
+                date: "2024-01-15",
+                time: "10:00 AM",
+                location: "Community Center, Downtown",
+                ageGroup: "5-10 years",
+                category: "Arts & Crafts",
+                attendees: 8,
+                maxAttendees: 15,
+                price: "Free",
+            },
+            {
+                id: 2,
+                title: "Soccer Practice for Beginners",
+                description: "Fun soccer training session for kids new to the sport",
+                host: "Mike Rodriguez",
+                date: "2024-01-16",
+                time: "3:00 PM",
+                location: "Riverside Park",
+                ageGroup: "6-12 years",
+                category: "Sports",
+                attendees: 12,
+                maxAttendees: 20,
+                price: "$10",
+            },
+            {
+                id: 3,
+                title: "Science Experiment Day",
+                description: "Hands-on science experiments and learning activities",
+                host: "Dr. Emily Chen",
+                date: "2024-01-18",
+                time: "2:00 PM",
+                location: "Science Museum",
+                ageGroup: "8-14 years",
+                category: "Education",
+                attendees: 6,
+                maxAttendees: 12,
+                price: "$15",
+            },
+            {
+                id: 4,
+                title: "Playground Meetup",
+                description: "Casual playground meetup for toddlers and parents",
+                host: "Lisa Park",
+                date: "2024-01-17",
+                time: "11:00 AM",
+                location: "Oakwood Playground",
+                ageGroup: "2-5 years",
+                category: "Social",
+                attendees: 5,
+                maxAttendees: 10,
+                price: "Free",
+            },
+        ];
+
+        // Current user state
+        let currentUser = null;
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            showPage('home');
+            renderEvents(events);
+            
+            // Check if user is logged in (from localStorage)
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateAuthState();
+            }
+        });
+
+        // Page navigation
+        function showPage(pageId) {
+            // Hide all pages
+            const pages = document.querySelectorAll('.page');
+            pages.forEach(page => {
+                page.classList.add('hidden');
+                page.classList.remove('fade-in');
+            });
+
+            // Show selected page
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                targetPage.classList.remove('hidden');
+                targetPage.classList.add('fade-in');
+            }
+        }
+
+        // Authentication functions
+        function handleSignIn(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const errorDiv = document.getElementById('signin-error');
+            
+            // Simple validation (demo purposes)
+            if (email === 'demo@example.com' && password === 'password') {
+                currentUser = {
+                    email: email,
+                    firstName: 'John',
+                    lastName: 'Doe',
+                    initials: 'JD'
+                };
+                
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateAuthState();
+                showPage('home');
+                
+                // Clear form
+                document.getElementById('signin-form').reset();
+                errorDiv.classList.add('hidden');
+            } else {
+                showError('signin-error', 'Invalid email or password. Try demo@example.com / password');
+            }
+        }
+
+        function handleSignUp(event) {
+            event.preventDefault();
+            
+            const firstName = document.getElementById('signup-firstname').value;
+            const lastName = document.getElementById('signup-lastname').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+            const agreeTerms = document.getElementById('agree-terms').checked;
+            
+            // Validation
+            if (password !== confirmPassword) {
+                showError('signup-error', 'Passwords do not match');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showError('signup-error', 'Password must be at least 6 characters long');
+                return;
+            }
+            
+            if (!agreeTerms) {
+                showError('signup-error', 'Please agree to the Terms of Service and Privacy Policy');
+                return;
+            }
+            
+            // Create user
+            currentUser = {
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
+                initials: firstName[0] + lastName[0]
+            };
+            
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateAuthState();
+            
+            alert('Account created successfully! Welcome to Kids Connect.');
+            showPage('home');
+            
+            // Clear form
+            document.getElementById('signup-form').reset();
+            document.getElementById('signup-error').classList.add('hidden');
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateAuthState();
+            showPage('home');
+        }
+
+        function updateAuthState() {
+            const authButtons = document.getElementById('auth-buttons');
+            const userMenu = document.getElementById('user-menu');
+            const userInitials = document.getElementById('user-initials');
+            
+            if (currentUser) {
+                authButtons.classList.add('hidden');
+                userMenu.classList.remove('hidden');
+                userInitials.textContent = currentUser.initials;
+            } else {
+                authButtons.classList.remove('hidden');
+                userMenu.classList.add('hidden');
+            }
+        }
+
+        // Event management functions
+        function handleCreateEvent(event) {
+            event.preventDefault();
+            
+            if (!currentUser) {
+                alert('Please sign in to create an event.');
+                showPage('signin');
+                return;
+            }
+            
+            const title = document.getElementById('event-title').value;
+            const description = document.getElementById('event-description').value;
+            const category = document.getElementById('event-category').value;
+            const ageGroup = document.getElementById('event-age-group').value;
+            const date = document.getElementById('event-date').value;
+            const time = document.getElementById('event-time').value;
+            const location = document.getElementById('event-location').value;
+            const maxAttendees = parseInt(document.getElementById('event-max-attendees').value);
+            const price = document.getElementById('event-price').value;
+            
+            // Create new event
+            const newEvent = {
+                id: events.length + 1,
+                title: title,
+                description: description,
+                host: currentUser.firstName + ' ' + currentUser.lastName,
+                date: date,
+                time: time,
+                location: location,
+                ageGroup: ageGroup,
+                category: category,
+                attendees: 0,
+                maxAttendees: maxAttendees,
+                price: price ? '$' + price : 'Free',
+            };
+            
+            events.unshift(newEvent);
+            renderEvents(events);
+            
+            alert('Event created successfully!');
+            showPage('home');
+            
+            // Clear form
+            document.getElementById('create-event-form').reset();
+            document.getElementById('create-event-error').classList.add('hidden');
+        }
+
+        function joinEvent(eventId) {
+            if (!currentUser) {
+                alert('Please sign in to join events.');
+                showPage('signin');
+                return;
+            }
+            
+            const event = events.find(e => e.id === eventId);
+            if (event && event.attendees < event.maxAttendees) {
+                event.attendees++;
+                renderEvents(getFilteredEvents());
+                alert('Successfully joined the event!');
+            } else {
+                alert('Sorry, this event is full.');
+            }
+        }
+
+        // Event filtering and rendering
+        function filterEvents() {
+            const filteredEvents = getFilteredEvents();
+            renderEvents(filteredEvents);
+        }
+
+        function getFilteredEvents() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const selectedCategory = document.getElementById('category-filter').value;
+            const selectedAgeGroup = document.getElementById('age-filter').value;
+            
+            return events.filter(event => {
+                const matchesSearch = event.title.toLowerCase().includes(searchTerm) ||
+                                    event.description.toLowerCase().includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
+                const matchesAge = selectedAgeGroup === 'all' || event.ageGroup === selectedAgeGroup;
+                
+                return matchesSearch && matchesCategory && matchesAge;
+            });
+        }
+
+        function renderEvents(eventsToRender) {
+            const eventsGrid = document.getElementById('events-grid');
+            const noEventsDiv = document.getElementById('no-events');
+            
+            if (eventsToRender.length === 0) {
+                eventsGrid.classList.add('hidden');
+                noEventsDiv.classList.remove('hidden');
+                return;
+            }
+            
+            eventsGrid.classList.remove('hidden');
+            noEventsDiv.classList.add('hidden');
+            
+            eventsGrid.innerHTML = eventsToRender.map(event => `
+                <div class="bg-white rounded-lg shadow-sm hover:shadow-lg transition-shadow cursor-pointer">
+                    <div class="p-6">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex-1">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">${event.title}</h3>
+                                <p class="text-sm text-gray-600">${event.description}</p>
+                            </div>
+                            <span class="ml-2 px-2 py-1 bg-gray-100 text-gray-800 text-xs rounded-full">${event.category}</span>
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <!-- Host Info -->
+                            <div class="flex items-center space-x-2">
+                                <div class="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
+                                    <span class="text-xs font-medium text-gray-700">${event.host.split(' ').map(n => n[0]).join('')}</span>
+                                </div>
+                                <span class="text-sm text-gray-600">Hosted by ${event.host}</span>
+                            </div>
+                            
+                            <!-- Date and Time -->
+                            <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span>${new Date(event.date).toLocaleDateString()}</span>
+                                </div>
+                                <div class="flex items-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    <span>${event.time}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Location -->
+                            <div class="flex items-center space-x-1 text-sm text-gray-600">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                <span>${event.location}</span>
+                            </div>
+                            
+                            <!-- Age Group and Attendees -->
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="px-2 py-1 border border-gray-300 text-gray-700 rounded-full">${event.ageGroup}</span>
+                                <div class="flex items-center space-x-1 text-gray-600">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                    </svg>
+                                    <span>${event.attendees}/${event.maxAttendees}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Price and Action -->
+                            <div class="flex items-center justify-between pt-2">
+                                <span class="font-semibold text-green-600">${event.price}</span>
+                                <button 
+                                    onclick="joinEvent(${event.id})" 
+                                    class="px-4 py-2 gradient-btn text-white text-sm rounded-md hover:opacity-90"
+                                    ${event.attendees >= event.maxAttendees ? 'disabled class="px-4 py-2 bg-gray-300 text-gray-500 text-sm rounded-md cursor-not-allowed"' : ''}
+                                >
+                                    ${event.attendees >= event.maxAttendees ? 'Full' : 'Join Event'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Utility functions
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+        }
+
+        function showError(errorId, message) {
+            const errorDiv = document.getElementById(errorId);
+            const errorText = errorDiv.querySelector('p');
+            errorText.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
